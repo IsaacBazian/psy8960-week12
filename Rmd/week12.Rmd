@@ -18,6 +18,7 @@ library(jsonlite)
 library(tm)
 library(qdap)
 library(textstem)
+library(RWeka)
 ```
 
 ## Data Import and Cleaning
@@ -33,14 +34,12 @@ week12_tbl <- week12_tbl_original %>%
 
 
 
-## Analysis
-
 ```{r analysis}
 week12_tbl_pre_preprocess <- week12_tbl %>% 
   mutate(across("title", str_replace_all, "-|/", " ")) #This is done because otherwise words connected by a hyphen or slash end up as one word with removePunctuation
 
 io_corpus_original <- VCorpus(VectorSource(week12_tbl_pre_preprocess$title))
-io_corpus_preprocessed <- io_corpus_original %>% 
+io_corpus <- io_corpus_original %>% 
   tm_map(content_transformer(replace_abbreviation)) %>% 
   tm_map(content_transformer(replace_contraction)) %>% 
   tm_map(content_transformer(replace_symbol)) %>% #Dollar symbol came up
@@ -52,7 +51,7 @@ io_corpus_preprocessed <- io_corpus_original %>%
   tm_map(content_transformer(lemmatize_strings))
 
 content(io_corpus_original[[1]])
-content(io_corpus_preprocessed[[1]])
+content(io_corpus[[1]])
 ```
 
 
@@ -64,10 +63,20 @@ compare_them <- function(corp1, corp2) {
   return(corp_list)
 }
 
-compare_them(io_corpus_original, io_corpus_preprocessed)
+compare_them(io_corpus_original, io_corpus)
 ```
 
+SPARSENESS SLIMMING WILL NEED TO CHANGE WITH NEW DATA
+```{r bigram_dtm}
+myTokenizer <- function(x) { 
+  NGramTokenizer(x, Weka_control(min=1, max=2)) 
+  }
+io_dtm <- DocumentTermMatrix(io_corpus, control = list(tokenize = myTokenizer))
+io_slim_dtm <- removeSparseTerms(io_dtm, .98)
 
+io_dtm
+io_slim_dtm
+```
 
 
 
