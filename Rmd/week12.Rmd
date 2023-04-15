@@ -24,6 +24,7 @@ library(topicmodels)
 library(parallel)
 library(doParallel)
 library(tidytext)
+library(wordcloud)
 ```
 
 ## Data Import and Cleaning
@@ -148,7 +149,12 @@ TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
 ```
 
 
+## Visualization
 
+```{r wordcloud}
+wordcloud_tbl <- as_tibble(as.matrix(io_dtm))
 
+wordcloud(names(wordcloud_tbl), colSums(wordcloud_tbl), max.words = 20, colors = brewer.pal(10, "Oranges"))
+```
 
 
