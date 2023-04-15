@@ -47,7 +47,7 @@ io_corpus_preprocessed <- io_corpus_original %>%
   tm_map(content_transformer(str_to_lower)) %>% 
   tm_map(content_transformer(replace_number)) %>%
   tm_map(removePunctuation) %>% 
-  tm_map(removeWords, c(stopwords("en"), "io", "i o", "io psychology", "i o psychology", "io psych", "i o psych", "riopsychology")) %>% 
+  tm_map(removeWords, c(stopwords("en"), "io", "i o", "io psychology", "i o psychology", "io psych", "i o psych", "riopsychology", "iopsychology")) %>% 
   tm_map(stripWhitespace) %>% 
   tm_map(content_transformer(lemmatize_strings))
 
@@ -55,6 +55,17 @@ content(io_corpus_original[[1]])
 content(io_corpus_preprocessed[[1]])
 ```
 
+
+```{r compare_them}
+compare_them <- function(corp1, corp2) {
+  rows <- 1:length(corp1)
+  pick <- sample(rows, 1)
+  corp_list <- list("Original" = content(corp1[[pick]]), "Preprocessed" = content(corp2[[pick]]))
+  return(corp_list)
+}
+
+compare_them(io_corpus_original, io_corpus_preprocessed)
+```
 
 
 
