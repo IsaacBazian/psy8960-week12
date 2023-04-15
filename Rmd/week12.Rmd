@@ -36,14 +36,18 @@ week12_tbl <- week12_tbl_original %>%
 ## Analysis
 
 ```{r analysis}
-io_corpus_original <- VCorpus(VectorSource(week12_tbl$title))
+week12_tbl_pre_preprocess <- week12_tbl %>% 
+  mutate(across("title", str_replace_all, "-|/", " ")) #This is done because otherwise words connected by a hyphen or slash end up as one word with removePunctuation
+
+io_corpus_original <- VCorpus(VectorSource(week12_tbl_pre_preprocess$title))
 io_corpus_preprocessed <- io_corpus_original %>% 
   tm_map(content_transformer(replace_abbreviation)) %>% 
   tm_map(content_transformer(replace_contraction)) %>% 
+  tm_map(content_transformer(replace_symbol)) %>% #Dollar symbol came up
   tm_map(content_transformer(str_to_lower)) %>% 
-  tm_map(content_transformer(replace_number)) %>% 
+  tm_map(content_transformer(replace_number)) %>%
   tm_map(removePunctuation) %>% 
-  tm_map(removeWords, c(stopwords("en"), "io", "io psychology", "io psych", "riopsychology")) %>% 
+  tm_map(removeWords, c(stopwords("en"), "io", "i o", "io psychology", "i o psychology", "io psych", "i o psych", "riopsychology")) %>% 
   tm_map(stripWhitespace) %>% 
   tm_map(content_transformer(lemmatize_strings))
 
