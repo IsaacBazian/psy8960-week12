@@ -9,11 +9,38 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-#Script Settings and Resources
+
+## Script Settings and Resources
+```{r script_settings_and_resources}
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) comment for now, probably won't need
 library(tidyverse)
-
+library(jsonlite)
 
 ```
+
+## Data Import and Cleaning
+
+THIS IS NOT WHAT IS NEEDED ON THE FINAL ASSIGNMENT. This grabs 100 or so posts from the subreddit, not the past year. Will need to figure out how to do that and download the data later, but this is enough to get started on the rest of the code and I will just change how I get week12_tbl later.
+```{r data_import_and_cleaning}
+riopsychology_list <- fromJSON("https://www.reddit.com/r/IOPsychology/.json?limit=100", flatten = TRUE)
+week12_tbl_original <- as_tibble(riopsychology_list$data$children)
+week12_tbl <- week12_tbl_original %>%
+  select(title = data.title,
+         upvotes = data.score)
+```
+
+
+
+## Analysis
+
+```{r analysis}
+
+```
+
+
+
+
+
+
+
 
