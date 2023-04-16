@@ -134,7 +134,7 @@ myTokenizer <- function(x) {
   NGramTokenizer(x, Weka_control(min=1, max=2)) 
   }
 io_dtm <- DocumentTermMatrix(io_corpus, control = list(tokenize = myTokenizer))
-io_slim_dtm <- removeSparseTerms(io_dtm, .98)
+io_slim_dtm <- removeSparseTerms(io_dtm, .995)
 
 io_dtm #REMOVE LATER, CODING CHECK
 io_slim_dtm
