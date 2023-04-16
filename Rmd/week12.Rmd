@@ -43,7 +43,7 @@ THIS IS NOT WHAT IS NEEDED ON THE FINAL ASSIGNMENT. This grabs 100 or so posts f
 
 ```{r data_import_2}
 
-url = "https://old.reddit.com/r/IOPsychology/new/"
+url = "https://old.reddit.com/r/IOPsychology/"
 hold_tbl <- tibble(title_loop = NA, upvotes_loop = NA)
 
 
@@ -77,10 +77,10 @@ last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
   as.String()
   
 
-url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", i, "&after=t3_", last_post_id)
+url <- paste0("https://old.reddit.com/r/IOPsychology/?count=", i, "&after=t3_", last_post_id)
 
 print(i)
-Sys.sleep(3)
+Sys.sleep(2)
 
 }
 
@@ -89,6 +89,19 @@ week12_tbl <- hold_tbl %>%
   rename(title = title_loop, upvotes = upvotes_loop)
 
 #Seems to be screwing up somewhere around 200-250, getting duplicates
+
+# week12_tbl %>%
+#   group_by_all() %>%
+#   filter(n()>1) %>%
+#   ungroup()
+
+week12_dupes <- week12_tbl %>% 
+  add_count(title, upvotes) %>%
+  filter(n>1) %>%
+  distinct()
+
+week12_tbl %>% 
+  distinct()
 
 ```
 
