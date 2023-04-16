@@ -33,11 +33,11 @@ library(rvest) #Testing, use instead of jsonlite if it works
 
 THIS IS NOT WHAT IS NEEDED ON THE FINAL ASSIGNMENT. This grabs 100 or so posts from the subreddit, not the past year. Will need to figure out how to do that and download the data later, but this is enough to get started on the rest of the code and I will just change how I get week12_tbl later.
 ```{r data_import_and_cleaning}
-riopsychology_list <- fromJSON("https://www.reddit.com/r/IOPsychology/.json?limit=100", flatten = TRUE)
-week12_tbl_original <- as_tibble(riopsychology_list$data$children)
-week12_tbl <- week12_tbl_original %>%
-  select(title = data.title,
-         upvotes = data.score)
+# riopsychology_list <- fromJSON("https://www.reddit.com/r/IOPsychology/.json?limit=100", flatten = TRUE)
+# week12_tbl_original <- as_tibble(riopsychology_list$data$children)
+# week12_tbl <- week12_tbl_original %>%
+#   select(title = data.title,
+#          upvotes = data.score)
 ```
 
 
@@ -63,7 +63,7 @@ upvotes_loop <- riopsychology_html %>%
 
 loop_tbl <- tibble(title_loop, upvotes_loop)
 
-test_tbl <- bind_rows(hold_tbl, loop_tbl)
+hold_tbl <- bind_rows(hold_tbl, loop_tbl)
 
 
 
@@ -83,6 +83,12 @@ print(i)
 Sys.sleep(3)
 
 }
+
+week12_tbl <- hold_tbl %>% 
+  drop_na() %>% 
+  rename(title = title_loop, upvotes = upvotes_loop)
+
+
 
 ```
 
