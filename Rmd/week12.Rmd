@@ -77,8 +77,9 @@ last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
   as.String()
   
 
-url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", 25, "&after=t3_", last_post_id)
+url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", i, "&after=t3_", last_post_id)
 
+print(i)
 Sys.sleep(3)
 
 }
