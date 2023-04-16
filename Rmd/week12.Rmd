@@ -42,19 +42,26 @@ week12_tbl <- week12_tbl_original %>%
 
 
 ```{r data_import_2}
-riopsychology_html <- read_html("https://old.reddit.com/r/IOPsychology/new/?count=1")
 
-html_elements(riopsychology_html, xpath = "//p") %>%
-  html_attr("href")
+url = "https://old.reddit.com/r/IOPsychology/new/"
 
+for (i in seq(25, 800, 25)){
 
-#html_attr("href")
-
+riopsychology_html <- read_html(url)
 
 
+last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
+  html_attr("href") %>% 
+  str_match("/r/IOPsychology/comments/(.......)/") %>% 
+  as_tibble() %>%
+  select(V2) %>% 
+  drop_na() %>% 
+  tail(1) %>% 
+  as.String()
+  
 
-#url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", i, "&after=t3_")
-
+url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", i, "&after=t3_", last_post_id)
+}
 
 ```
 
