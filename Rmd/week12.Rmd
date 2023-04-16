@@ -25,6 +25,8 @@ library(parallel)
 library(doParallel)
 library(tidytext)
 library(wordcloud)
+
+library(rvest) #Testing, use instead of jsonlite if it works
 ```
 
 ## Data Import and Cleaning
@@ -37,6 +39,14 @@ week12_tbl <- week12_tbl_original %>%
   select(title = data.title,
          upvotes = data.score)
 ```
+
+
+```{r data_import_2}
+riopsychology_html <- read_html("https://old.reddit.com/r/IOPsychology/new/?count=1")
+
+
+```
+
 
 
 
