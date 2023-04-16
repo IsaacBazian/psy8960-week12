@@ -88,7 +88,7 @@ week12_tbl <- hold_tbl %>%
   drop_na() %>% 
   rename(title = title_loop, upvotes = upvotes_loop)
 
-
+#Seems to be screwing up somewhere around 200-250, getting duplicates
 
 ```
 
