@@ -44,8 +44,10 @@ week12_tbl <- week12_tbl_original %>%
 ```{r data_import_2}
 
 url = "https://old.reddit.com/r/IOPsychology/new/"
+hold_tbl <- tibble(title_loop = NA, upvotes_loop = NA)
 
-#for (i in seq(25, 800, 25)){
+
+for (i in seq(25, 800, 25)){
 
 riopsychology_html <- read_html(url)
 
@@ -61,6 +63,10 @@ upvotes_loop <- riopsychology_html %>%
 
 loop_tbl <- tibble(title_loop, upvotes_loop)
 
+test_tbl <- bind_rows(hold_tbl, loop_tbl)
+
+
+
 last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
   html_attr("href") %>% 
   str_match("/r/IOPsychology/comments/(.......)/") %>% 
@@ -75,7 +81,7 @@ url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", 25, "&after=t
 
 Sys.sleep(3)
 
-#}
+}
 
 ```
 
