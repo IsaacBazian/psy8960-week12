@@ -45,10 +45,21 @@ week12_tbl <- week12_tbl_original %>%
 
 url = "https://old.reddit.com/r/IOPsychology/new/"
 
-for (i in seq(25, 800, 25)){
+#for (i in seq(25, 800, 25)){
 
 riopsychology_html <- read_html(url)
 
+title_loop <- riopsychology_html %>% 
+  html_elements(xpath = "//a[@data-event-action = 'title']") %>% 
+  html_text()
+
+upvotes_loop <- riopsychology_html %>% 
+  html_elements(xpath = "//div[@class = 'score unvoted']") %>% 
+  html_text() %>% 
+  as.numeric() %>% 
+  replace_na(0)
+
+loop_tbl <- tibble(title_loop, upvotes_loop)
 
 last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
   html_attr("href") %>% 
@@ -60,8 +71,11 @@ last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
   as.String()
   
 
-url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", i, "&after=t3_", last_post_id)
-}
+url <- paste0("https://old.reddit.com/r/IOPsychology/new/?count=", 25, "&after=t3_", last_post_id)
+
+Sys.sleep(3)
+
+#}
 
 ```
 
