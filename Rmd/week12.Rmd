@@ -27,6 +27,7 @@ library(tidytext)
 library(wordcloud)
 
 library(rvest) #Testing, use instead of jsonlite if it works
+library(RedditExtractoR) #More testing, trying a specialty package
 ```
 
 ## Data Import and Cleaning
@@ -43,65 +44,83 @@ THIS IS NOT WHAT IS NEEDED ON THE FINAL ASSIGNMENT. This grabs 100 or so posts f
 
 ```{r data_import_2}
 
-url = "https://old.reddit.com/r/IOPsychology/"
-hold_tbl <- tibble(title_loop = NA, upvotes_loop = NA)
+# url = "https://old.reddit.com/r/IOPsychology/"
+# hold_tbl <- tibble(title_loop = NA, upvotes_loop = NA)
+# 
+# 
+# for (i in seq(25, 300, 25)){
+# 
+# riopsychology_html <- read_html(url)
+# 
+# title_loop <- riopsychology_html %>% 
+#   html_elements(xpath = "//a[@data-event-action = 'title']") %>% 
+#   html_text()
+# 
+# upvotes_loop <- riopsychology_html %>% 
+#   html_elements(xpath = "//div[@class = 'score unvoted']") %>% 
+#   html_text() %>% 
+#   as.numeric() %>% 
+#   replace_na(0)
+# 
+# loop_tbl <- tibble(title_loop, upvotes_loop)
+# 
+# hold_tbl <- bind_rows(hold_tbl, loop_tbl)
+# 
+# 
+# 
+# last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
+#   html_attr("href") %>% 
+#   str_match("/r/IOPsychology/comments/(.......)/") %>% 
+#   as_tibble() %>%
+#   select(V2) %>% 
+#   drop_na() %>% 
+#   tail(1) %>% 
+#   as.String()
+#   
+# 
+# url <- paste0("https://old.reddit.com/r/IOPsychology/?count=", i, "&after=t3_", last_post_id)
+# 
+# print(i)
+# Sys.sleep(2)
+# 
+# }
+# 
+# week12_tbl <- hold_tbl %>% 
+#   drop_na() %>% 
+#   rename(title = title_loop, upvotes = upvotes_loop)
+# 
+# #Seems to be screwing up somewhere around 200-250, getting duplicates
+# 
+# # week12_tbl %>%
+# #   group_by_all() %>%
+# #   filter(n()>1) %>%
+# #   ungroup()
+# 
+# week12_dupes <- week12_tbl %>% 
+#   add_count(title, upvotes) %>%
+#   filter(n>1) %>%
+#   distinct()
+# 
+# week12_tbl %>% 
+#   distinct()
+
+```
+
+```{r data_import_3}
+# riopsychology_urls <- find_thread_urls(keywords = NA, sort_by = "new", subreddit = "IOPsychology", period = "year")
+# 
+# riopsychology_content <- get_thread_content(riopsychology_urls$url)
+# 
+# title <- riopsychology_content$threads$title
+# upvotes <- riopsychology_content$threads$upvotes
+# 
+# week12_data <- tibble(title, upvotes)
+# 
+# write_csv(week12_data, "../data/week12_data.csv")
 
 
-for (i in seq(25, 800, 25)){
+week12_tbl <- read_csv("../data/week12_data.csv")
 
-riopsychology_html <- read_html(url)
-
-title_loop <- riopsychology_html %>% 
-  html_elements(xpath = "//a[@data-event-action = 'title']") %>% 
-  html_text()
-
-upvotes_loop <- riopsychology_html %>% 
-  html_elements(xpath = "//div[@class = 'score unvoted']") %>% 
-  html_text() %>% 
-  as.numeric() %>% 
-  replace_na(0)
-
-loop_tbl <- tibble(title_loop, upvotes_loop)
-
-hold_tbl <- bind_rows(hold_tbl, loop_tbl)
-
-
-
-last_post_id <- html_elements(riopsychology_html, xpath = "//p/a") %>%
-  html_attr("href") %>% 
-  str_match("/r/IOPsychology/comments/(.......)/") %>% 
-  as_tibble() %>%
-  select(V2) %>% 
-  drop_na() %>% 
-  tail(1) %>% 
-  as.String()
-  
-
-url <- paste0("https://old.reddit.com/r/IOPsychology/?count=", i, "&after=t3_", last_post_id)
-
-print(i)
-Sys.sleep(2)
-
-}
-
-week12_tbl <- hold_tbl %>% 
-  drop_na() %>% 
-  rename(title = title_loop, upvotes = upvotes_loop)
-
-#Seems to be screwing up somewhere around 200-250, getting duplicates
-
-# week12_tbl %>%
-#   group_by_all() %>%
-#   filter(n()>1) %>%
-#   ungroup()
-
-week12_dupes <- week12_tbl %>% 
-  add_count(title, upvotes) %>%
-  filter(n>1) %>%
-  distinct()
-
-week12_tbl %>% 
-  distinct()
 
 ```
 
