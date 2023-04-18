@@ -52,19 +52,11 @@ week12_tbl <- read_csv("../data/week12_data.csv")
 
 ```{r preprocess}
 week12_tbl_pre_preprocess <- week12_tbl %>% 
-  mutate(across("title", str_replace_all, "-|/", " "))  #This is done because otherwise words connected by a hyphen or slash end up as one word with removePunctuation
-
-# The following preprocessing makes these specific entries contain nothing. Less agressize preprocessing was not reasonable,
-# as they are just full of standard english stopwords and some variation of 'IO Psychology', which we also want to remove.
-# Simply making them say "empty" (a token that does not otherwise occur in this corpus) ensures that they don't cause problems.
-# I know this technically makes up data, but this is an extremely small portion of the corpus/data, so I figures this
-# workaround is 'good enough' from a data science perspective.
-week12_tbl_pre_preprocess$title[487] <- "empty"
-week12_tbl_pre_preprocess$title[570] <- "empty"
-week12_tbl_pre_preprocess$title[737] <- "empty"
+  mutate(across("title", str_replace_all, "-|/", " ")) #This is done because otherwise words connected by a hyphen or slash end up as one token
 
 io_corpus_original <- VCorpus(VectorSource(week12_tbl_pre_preprocess$title))
-io_corpus <- io_corpus_original %>% 
+
+io_corpus_with_empty <- io_corpus_original %>% 
   tm_map(content_transformer(replace_abbreviation)) %>% 
   tm_map(content_transformer(replace_contraction)) %>% 
   tm_map(content_transformer(replace_symbol)) %>% #Dollar symbol came up
@@ -75,6 +67,8 @@ io_corpus <- io_corpus_original %>%
   tm_map(stripWhitespace) %>% 
   tm_map(content_transformer(lemmatize_words))
 
+io_corpus <- io_corpus_with_empty %>% 
+  tm_filter(FUN = function(x) { return(nchar(stripWhitespace(x$content)[[1]]) > 1) }) #RL's code, changed > 0 to > 1 because my code made empty entries " " rather than "", so 1 character rather than 0
 ```
 
 
@@ -82,11 +76,11 @@ io_corpus <- io_corpus_original %>%
 compare_them <- function(corp1, corp2) {
   rows <- 1:length(corp1)
   pick <- sample(rows, 1)
-  corp_list <- list("Original" = content(corp1[[pick]]), "Preprocessed" = content(corp2[[pick]]))
+  corp_list <- list("Row" = pick, Original = content(corp1[[pick]]), "Preprocessed" = content(corp2[[pick]]))
   return(corp_list)
 }
 
-compare_them(io_corpus_original, io_corpus)
+compare_them(io_corpus_original, io_corpus_with_empty) #We do this with io_corpus_with_empty rather than io_corpus because this way the filtered values aren't removed yet, so the indexes match up with the original. Otherwise if the random value is above where the first value has been dropped, you get two different documents.
 ```
 ## Analysis
 
@@ -132,7 +126,7 @@ registerDoSEQ()
 ```
 
 ```{r lda_results}
-lda_results <- LDA(io_dtm, 3) # 3 seems the most comprehensible of 3, 4, 5
+lda_results <- LDA(io_dtm, 5)
 
 lda_betas <- tidy(lda_results, matrix="beta")
 
@@ -154,10 +148,19 @@ mutate(document = as.numeric(document)) %>%
 arrange(document)
 
 
-topics_tbl <- tibble(doc_id = 1:length(io_corpus),
-                     original = week12_tbl$title,
-                     topic = gamma_vals$topic,
-                     probability = gamma_vals$gamma)
+week12_tbl_ids <- week12_tbl %>% 
+  mutate(doc_id = as.character(1:nrow(week12_tbl)))
+
+topics_tbl_ids <- tibble(doc_id = Docs(io_dtm))
+
+topics_tbl <- topics_tbl_ids %>% 
+  left_join(y = week12_tbl_ids) %>%
+  select(-upvotes) %>% #Getting rid of upvotes here because assignment language
+  # implies final_tbl should be made from contents of topic_tbl, so I will add
+  # upvotes back in when making final_tbl later
+  mutate(topic = gamma_vals$topic,
+         probability = gamma_vals$gamma)
+         
 
 ```
 
@@ -165,8 +168,8 @@ topics_tbl <- tibble(doc_id = 1:length(io_corpus),
 ```{r upvotes_by_topic}
 
 final_tbl <- topics_tbl %>% 
-  mutate(upvotes = week12_tbl$upvotes,
-         topic = as.factor(topic))
+  left_join(week12_tbl_ids) %>% 
+  mutate(topic = as.factor(topic))
 
 summary(lm(upvotes ~ topic, data = final_tbl))
 TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
