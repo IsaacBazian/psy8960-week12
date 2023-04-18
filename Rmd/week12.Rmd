@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r script_settings_and_resources, message = FALSE}
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) comment for now, probably won't need
 library(tidyverse)
-library(RedditExtractoR) #More testing, trying a specialty package
+library(RedditExtractoR)
 library(tm)
 library(qdap)
 library(textstem)
@@ -84,7 +84,7 @@ compare_them(io_corpus_original, io_corpus_with_empty) #We do this with io_corpu
 ```
 ## Analysis
 
-SPARSENESS SLIMMING WILL NEED TO CHANGE WITH NEW DATA
+
 ```{r bigram_dtm}
 myTokenizer <- function(x) { 
   NGramTokenizer(x, Weka_control(min=1, max=2)) 
