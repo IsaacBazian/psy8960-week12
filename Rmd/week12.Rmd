@@ -101,11 +101,11 @@ io_slim_dtm <- removeSparseTerms(io_dtm, .996)
 io_dtm #REMOVE LATER, CODING CHECK
 io_slim_dtm
 
-io_dtm_tbl <- as_tibble(as.matrix(io_dtm))#TEMP TO TROUBLESHOOT
-io_dtm_tbl <- io_dtm_tbl %>% 
-  mutate(sums = rowSums(io_dtm_tbl)) %>% 
-  mutate(zero = (sums == 0)) %>% 
-  select(sums, zero) #487, 570, 737, 
+# io_dtm_tbl <- as_tibble(as.matrix(io_dtm))#TEMP TO TROUBLESHOOT
+# io_dtm_tbl <- io_dtm_tbl %>% 
+#   mutate(sums = rowSums(io_dtm_tbl)) %>% 
+#   mutate(zero = (sums == 0)) %>% 
+#   select(sums, zero) #487, 570, 737, 
 
 ```
 
