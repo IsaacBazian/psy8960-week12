@@ -11,10 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ## Script Settings and Resources
-```{r script_settings_and_resources}
+```{r script_settings_and_resources, message = FALSE}
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) comment for now, probably won't need
 library(tidyverse)
-library(jsonlite)
+library(RedditExtractoR) #More testing, trying a specialty package
 library(tm)
 library(qdap)
 library(textstem)
@@ -25,9 +25,6 @@ library(parallel)
 library(doParallel)
 library(tidytext)
 library(wordcloud)
-
-library(rvest) #Testing, use instead of jsonlite if it works
-library(RedditExtractoR) #More testing, trying a specialty package
 ```
 
 ## Data Import and Cleaning
@@ -65,12 +62,11 @@ io_corpus <- io_corpus_original %>%
   tm_map(content_transformer(str_to_lower)) %>% 
   tm_map(content_transformer(replace_number)) %>%
   tm_map(removePunctuation) %>% 
-  tm_map(removeWords, c(stopwords("en"), "io", "i o", "io psychology", "i o psychology", "io psych", "i o psych", "riopsychology", "iopsychology")) %>% 
+  tm_map(removeWords, c(stopwords("en"), "io", "i o", "io psychology", "i o psychology", "io psych", "i o psych", "riopsychology", "iopsychology", "psychologist", "psychologists")) %>% 
   tm_map(stripWhitespace) %>% 
-  tm_map(content_transformer(lemmatize_strings))
+  tm_map(content_transformer(lemmatize_words))
 
-content(io_corpus_original[[1]]) #REMOVE LATER, CODING CHECK
-content(io_corpus[[1]])
+  #tm_filter(io_corpus, FUN = function(x) { return(nchar(stripWhitespace(x$content)[[1]]) > 0) }) #RL code to filter empty rows
 ```
 
 
@@ -96,6 +92,12 @@ io_slim_dtm <- removeSparseTerms(io_dtm, .996)
 
 io_dtm #REMOVE LATER, CODING CHECK
 io_slim_dtm
+
+io_dtm_tbl <- as_tibble(as.matrix(io_dtm)) %>% #TEMP TO TROUBLESHOOT
+  mutate(sums = rowSums(io_dtm_tbl)) %>% 
+  mutate(zero = (sums == 0)) %>% 
+  select(sums, zero) #487, 570, 737, 
+
 ```
 
 Maybe put this in Visualization?
