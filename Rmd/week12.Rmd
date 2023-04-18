@@ -52,7 +52,16 @@ week12_tbl <- read_csv("../data/week12_data.csv")
 
 ```{r preprocess}
 week12_tbl_pre_preprocess <- week12_tbl %>% 
-  mutate(across("title", str_replace_all, "-|/", " ")) #This is done because otherwise words connected by a hyphen or slash end up as one word with removePunctuation
+  mutate(across("title", str_replace_all, "-|/", " "))  #This is done because otherwise words connected by a hyphen or slash end up as one word with removePunctuation
+
+# The following preprocessing makes these specific entries contain nothing. Less agressize preprocessing was not reasonable,
+# as they are just full of standard english stopwords and some variation of 'IO Psychology', which we also want to remove.
+# Simply making them say "empty" (a token that does not otherwise occur in this corpus) ensures that they don't cause problems.
+# I know this technically makes up data, but this is an extremely small portion of the corpus/data, so I figures this
+# workaround is 'good enough' from a data science perspective.
+week12_tbl_pre_preprocess$title[487] <- "empty"
+week12_tbl_pre_preprocess$title[570] <- "empty"
+week12_tbl_pre_preprocess$title[737] <- "empty"
 
 io_corpus_original <- VCorpus(VectorSource(week12_tbl_pre_preprocess$title))
 io_corpus <- io_corpus_original %>% 
@@ -60,13 +69,12 @@ io_corpus <- io_corpus_original %>%
   tm_map(content_transformer(replace_contraction)) %>% 
   tm_map(content_transformer(replace_symbol)) %>% #Dollar symbol came up
   tm_map(content_transformer(str_to_lower)) %>% 
-  tm_map(content_transformer(replace_number)) %>%
+  #tm_map(content_transformer(replace_number)) %>% #When this was included, numbers that reflect the year dominated the first category
   tm_map(removePunctuation) %>% 
   tm_map(removeWords, c(stopwords("en"), "io", "i o", "io psychology", "i o psychology", "io psych", "i o psych", "riopsychology", "iopsychology", "psychologist", "psychologists")) %>% 
   tm_map(stripWhitespace) %>% 
   tm_map(content_transformer(lemmatize_words))
 
-  #tm_filter(io_corpus, FUN = function(x) { return(nchar(stripWhitespace(x$content)[[1]]) > 0) }) #RL code to filter empty rows
 ```
 
 
@@ -93,7 +101,8 @@ io_slim_dtm <- removeSparseTerms(io_dtm, .996)
 io_dtm #REMOVE LATER, CODING CHECK
 io_slim_dtm
 
-io_dtm_tbl <- as_tibble(as.matrix(io_dtm)) %>% #TEMP TO TROUBLESHOOT
+io_dtm_tbl <- as_tibble(as.matrix(io_dtm))#TEMP TO TROUBLESHOOT
+io_dtm_tbl <- io_dtm_tbl %>% 
   mutate(sums = rowSums(io_dtm_tbl)) %>% 
   mutate(zero = (sums == 0)) %>% 
   select(sums, zero) #487, 570, 737, 
@@ -123,7 +132,7 @@ registerDoSEQ()
 ```
 
 ```{r lda_results}
-lda_results <- LDA(io_dtm, 5)
+lda_results <- LDA(io_dtm, 3) # 3 seems the most comprehensible of 3, 4, 5
 
 lda_betas <- tidy(lda_results, matrix="beta")
 
@@ -159,6 +168,7 @@ final_tbl <- topics_tbl %>%
   mutate(upvotes = week12_tbl$upvotes,
          topic = as.factor(topic))
 
+summary(lm(upvotes ~ topic, data = final_tbl))
 TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
 
 ```
@@ -169,7 +179,7 @@ TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
 ```{r wordcloud}
 wordcloud_tbl <- as_tibble(as.matrix(io_dtm))
 
-wordcloud(names(wordcloud_tbl), colSums(wordcloud_tbl), max.words = 20, colors = brewer.pal(10, "Oranges"))
+wordcloud(names(wordcloud_tbl), colSums(wordcloud_tbl), max.words = 15, colors = brewer.pal(9, "Oranges")) #15 seems necessary to fit on page
 ```
 
 
