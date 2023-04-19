@@ -85,7 +85,7 @@ compare_them(io_corpus_original, io_corpus_with_empty) #We do this with io_corpu
 ```
 ## Analysis
 
-We set up a tokenizer to grab unigrams and bigrams from the corpus. We then use this tokenizer to turn the corpus into a DTM, then also remove sparse terms from this DTM. Examining the outputs of these objects reveals that we have successfully brought the n/k ratio of the slim DTM into the desired range between 2/1 and 3/1 (in thise case, 982/333).
+We set up a tokenizer to grab unigrams and bigrams from the corpus. We then use this tokenizer to turn the corpus into a DTM, then also remove sparse terms from this DTM. Examining the outputs of these objects reveals that we have successfully brought the n/k ratio of the slim DTM into the desired range between 2/1 and 3/1 (in this case, 982/333).
 ```{r bigram_dtm}
 myTokenizer <- function(x) { 
   NGramTokenizer(x, Weka_control(min=1, max=2)) 
@@ -98,7 +98,7 @@ io_slim_dtm
 
 ```
 
-Maybe put this in Visualization?
+We set up parallelization to find the number of appropriate topics for our data with LDA. Examining the LDA graphs makes it seem like 5 may be the best number of topics, as that's where the 'Maximize' metrics clearly cross over, but to be sure I also examined 3, 4, and 6 because the 'CaoJuan2009' Minimize metric seems a bit lower there, and I figured I may as well see if more or less topics made more sense based on observations of the different Beta matrices.
 ```{r lda_tuning}
 local_cluster <- makeCluster(7)
 registerDoParallel(local_cluster)
@@ -119,6 +119,7 @@ FindTopicsNumber_plot(lda_tuning)
 stopCluster(local_cluster)
 registerDoSEQ()
 ```
+
 
 ```{r lda_results}
 lda_results <- LDA(io_dtm, 5)
