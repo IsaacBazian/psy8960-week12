@@ -154,7 +154,7 @@ week12_tbl_ids <- week12_tbl %>%
 topics_tbl_ids <- tibble(doc_id = Docs(io_dtm))
 
 topics_tbl <- topics_tbl_ids %>% 
-  left_join(y = week12_tbl_ids) %>%
+  left_join(y = week12_tbl_ids, by = join_by(doc_id)) %>%
   select(-upvotes) %>% #Getting rid of upvotes here because assignment language
   # implies final_tbl should be made from contents of topic_tbl, so I will add
   # upvotes back in when making final_tbl later
@@ -168,10 +168,10 @@ topics_tbl <- topics_tbl_ids %>%
 ```{r upvotes_by_topic}
 
 final_tbl <- topics_tbl %>% 
-  left_join(week12_tbl_ids) %>% 
+  left_join(week12_tbl_ids, by = join_by(doc_id)) %>% 
   mutate(topic = as.factor(topic))
 
-summary(lm(upvotes ~ topic, data = final_tbl))
+summary(aov(upvotes ~ topic, data = final_tbl))
 TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
 
 ```
