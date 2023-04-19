@@ -98,7 +98,7 @@ io_slim_dtm
 
 ```
 
-We set up parallelization to find the number of appropriate topics for our data with LDA. Examining the LDA graphs makes it seem like 5 may be the best number of topics, as that's where the 'Maximize' metrics clearly cross over, but to be sure I also examined 3, 4, and 6 because the 'CaoJuan2009' Minimize metric seems a bit lower there, and I figured I may as well see if more or less topics made more sense based on observations of the different Beta matrices.
+We set up parallelization to find the number of appropriate topics for our data with LDA. The LDA graphs seem to change a bit each time I run this code, regardless of whether I run it parallel or serial and with our without a seed, but the general trend looking at the minimize metrics and where the maximize metrics cross over seems to suggest that 3, 4, or 5 may be the best choices for number of topics.
 ```{r lda_tuning}
 local_cluster <- makeCluster(7)
 registerDoParallel(local_cluster)
@@ -120,9 +120,9 @@ stopCluster(local_cluster)
 registerDoSEQ()
 ```
 
-
+Based on the LDA tuning graphs, I examined the beta matrices with 3, 4, or 5 topics and tried to make sense of them (the code for viewing the top 10 betas for each topic used in this process is included, but commented out). 3 topics seemed to yield the most interpretable topics, with 4 topics already starting to have difficult-to-conceptualize overlap between topics and 5 being even harder to parse. I therefore used 3 topics to get the beta and gamma matrices. I then made a tibble by combining the document IDs, the original post title of each document, the topic each document was assigned by the LDA, and the probability that the document belonged to that topic.
 ```{r lda_results}
-lda_results <- LDA(io_dtm, 5)
+lda_results <- LDA(io_dtm, 3)
 
 lda_betas <- tidy(lda_results, matrix="beta")
 
@@ -145,7 +145,7 @@ arrange(document)
 
 
 week12_tbl_ids <- week12_tbl %>% 
-  mutate(doc_id = as.character(1:nrow(week12_tbl)))
+  mutate(doc_id = as.character(1:nrow(week12_tbl))) #This code adds IDs to the original documents, and when it's left joined the removed empty entries will not carry over
 
 topics_tbl_ids <- tibble(doc_id = Docs(io_dtm))
 
@@ -160,7 +160,12 @@ topics_tbl <- topics_tbl_ids %>%
 
 ```
 
+Question 1:
 
+Question 2:
+
+
+This code makes the final tibble by adding the upvote counts of each post, then running an ANOVA to determine if these topics differed substantially from each other in terms of how many upvotes posts belonging to each topic received. Results indicated that there was no significant difference between the topics in terms of how many upvotes they received.
 ```{r upvotes_by_topic}
 
 final_tbl <- topics_tbl %>% 
@@ -168,13 +173,14 @@ final_tbl <- topics_tbl %>%
   mutate(topic = as.factor(topic))
 
 summary(aov(upvotes ~ topic, data = final_tbl))
-TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
+#TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
 
 ```
 
 
 ## Visualization
 
+This code makes a wordcloud from the DTM, such that more common words are larger and a darker shade of orange. I have restricted it to the top 20 words with this particular scale because otherwise there are often problems where some words do not have space to be plotted. INTERPRETATION HERE
 ```{r wordcloud}
 wordcloud_tbl <- as_tibble(as.matrix(io_dtm))
 
