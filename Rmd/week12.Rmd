@@ -182,7 +182,7 @@ TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
 ```{r wordcloud}
 wordcloud_tbl <- as_tibble(as.matrix(io_dtm))
 
-wordcloud(names(wordcloud_tbl), colSums(wordcloud_tbl), max.words = 15, colors = brewer.pal(9, "Oranges")) #15 seems necessary to fit on page
+wordcloud(names(wordcloud_tbl), colSums(wordcloud_tbl), max.words = 20, colors = brewer.pal(9, "Oranges"), scale = c(3.5, 0.25))
 ```
 
 
