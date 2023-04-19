@@ -29,6 +29,7 @@ library(wordcloud)
 
 ## Data Import and Cleaning
 
+This code makes use of the RedditExtractoR package to get the past year's worth of posts from r/IOPsychology. we simply tell the find_thread_urls which subreddit we're interested in, tell it to sort by 'new' to have posts sorted by date, and tell it to pull all posts from the past year. We then get the titles and numbers of upvotes for each post, put that information in a tibble, and save that tibble as a CSV. We can now simply call that data rather than importing the posts all over again every time.
 ```{r data_import}
 # riopsychology_urls <- find_thread_urls(keywords = NA, sort_by = "new", subreddit = "IOPsychology", period = "year")
 # 
@@ -49,7 +50,7 @@ week12_tbl <- read_csv("../data/week12_data.csv")
 
 
 
-
+With the data in hand, we not move on to prepreocessing. We first remove all hyphens and slashes, as otherwise two words connected by a '-' or '/' show up as one token later on. We then make the data into a corpus and apply a variety of preprocessing steps to impose more consistency on the data - we break abbreviations and contractions down into their component words, replace symbols with their words meanings (I'd notices the dollar sign, $, in a few posts and wanted it treated consistently). At this point, the documents in the corpora have as many words as they're going to, so we can start removing and changing words. We make all words lowercose for consistent treatment, remove punctuation, remove stopwords (doing this after making words lowercase and removing punctuation really cuts down on how many common variations there are of 'I-O Psychology'), strip the white space, and finally lemmatize the words to unify similar words into their meaningful cores. Finally, we remove empty entries, as some posts were purely made of conventional stopwords and I-O Psychology terms. I elected not to change numbers into words, because when I did so the numbers associated with the past year, 2022, dominated the first topic identified by my LDA later.
 ```{r preprocess}
 week12_tbl_pre_preprocess <- week12_tbl %>% 
   mutate(across("title", str_replace_all, "-|/", " ")) #This is done because otherwise words connected by a hyphen or slash end up as one token
@@ -59,7 +60,7 @@ io_corpus_original <- VCorpus(VectorSource(week12_tbl_pre_preprocess$title))
 io_corpus_with_empty <- io_corpus_original %>% 
   tm_map(content_transformer(replace_abbreviation)) %>% 
   tm_map(content_transformer(replace_contraction)) %>% 
-  tm_map(content_transformer(replace_symbol)) %>% #Dollar symbol came up
+  tm_map(content_transformer(replace_symbol)) %>% #Dollar symbol came up, so I included this
   tm_map(content_transformer(str_to_lower)) %>% 
   #tm_map(content_transformer(replace_number)) %>% #When this was included, numbers that reflect the year dominated the first category
   tm_map(removePunctuation) %>% 
@@ -71,7 +72,7 @@ io_corpus <- io_corpus_with_empty %>%
   tm_filter(FUN = function(x) { return(nchar(stripWhitespace(x$content)[[1]]) > 1) }) #RL's code, changed > 0 to > 1 because my code made empty entries " " rather than "", so 1 character rather than 0
 ```
 
-
+We write a function to compare the original corpus and our preprocessed corpus before we removed the empty rows (done so that the indexes matches up). Basically, the function picks a random number in the range of the corpora's length, gets the content of the document at that row index from each corpus, and displays the row number and contents. Running this function a number of times left me confident that my preprocessing was generally functioning as I expected it to.
 ```{r compare_them}
 compare_them <- function(corp1, corp2) {
   rows <- 1:length(corp1)
