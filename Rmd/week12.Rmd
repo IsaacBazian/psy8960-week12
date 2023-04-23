@@ -196,11 +196,11 @@ TukeyHSD(aov(upvotes ~ topic, data = final_tbl))
 
 ## Visualization
 
-This code makes a wordcloud from the DTM, such that more common words are larger and a darker shade of orange. I have restricted it to the top 20 words with this particular scale because otherwise there are often problems where some words do not have space to be plotted. INTERPRETATION HERE
+This code makes a wordcloud from the DTM, such that more common words are larger and a darker shade of orange. I have restricted it to the top 20 words with this particular scale because otherwise there are often problems where some words do not have space to be plotted.
 ```{r wordcloud}
 wordcloud_tbl <- as_tibble(as.matrix(io_dtm))
 
 wordcloud(names(wordcloud_tbl), colSums(wordcloud_tbl), max.words = 20, colors = brewer.pal(9, "Oranges"), scale = c(3.5, 0.25))
 ```
-
+Looking at this wordcloud, we can see that 'work' and 'job' seem like the most prominent tokens. This makes perfect sense - our field is concerned with studying people at work doing their jobs, and additionally, this subreddit is where I-O Psychologists come together to discuss their own work and jobs. 'research' is also quite prominent, reflecting our tendency to discuss findings and ask how we can best conduct future research. Much of the other tokens further reflect thse main themes - 'career' reflects further talk about our jobs and our research on work in general, and 'masters' reflects people coming together to talk about masters programs and get advice on what they're doing. Many other tokens - 'discussion,' reading,' and 'weekly', for example - reflect this subreddit's common posts whereby users engage each other in regular discussions of what they've been reading and down. I will note that 'psychology' has made it through as a token; I did my best to trim out 'I-O Psychology' and its variants, but 'psychology' on its own is a bit broader, and can be discussed without it necessarily needing to be I-O Psychology specifically - in my own experience, I have seen posts talking about clinical psychology, counseling psychology, human factors, and things of that nature. I view these as meaningful, and have therefore not tried to be more aggressive in getting rid of all mentions of 'psychology' in general. Overall, I think this wordcloud is fairly representative of the kinds of posts you'll often find on r/IOPsychology, and to a lesser extent, I feel like it offer insight into the I-O field's sensibilities more generally.
 
