@@ -50,7 +50,7 @@ week12_tbl <- read_csv("../data/week12_data.csv")
 
 
 
-With the data in hand, we not move on to prepreocessing. We first remove all hyphens and slashes, as otherwise two words connected by a '-' or '/' show up as one token later on. We then make the data into a corpus and apply a variety of preprocessing steps to impose more consistency on the data - we break abbreviations and contractions down into their component words, replace symbols with their words meanings (I'd notices the dollar sign, $, in a few posts and wanted it treated consistently). At this point, the documents in the corpora have as many words as they're going to, so we can start removing and changing words. We make all words lowercase for consistent treatment, remove punctuation, remove stopwords (doing this after making words lowercase and removing punctuation really cuts down on how many common variations there are of 'I-O Psychology'), strip the white space, and finally lemmatize the words to unify similar words into their meaningful cores. Finally, we remove empty entries, as some posts were purely made of conventional stopwords and I-O Psychology terms. I elected not to change numbers into words, because when I did so the numbers associated with the past year, 2022, dominated the first topic identified by my LDA later.
+With the data in hand, we not move on to preprocessing. We first remove all hyphens and slashes, as otherwise two words connected by a '-' or '/' show up as one token later on. We then make the data into a corpus and apply a variety of preprocessing steps to impose more consistency on the data - we break abbreviations and contractions down into their component words, replace symbols with their words meanings (I'd notices the dollar sign, $, in a few posts and wanted it treated consistently). At this point, the documents in the corpora have as many words as they're going to, so we can start removing and changing words. We make all words lowercase for consistent treatment, remove punctuation, remove stopwords (doing this after making words lowercase and removing punctuation really cuts down on how many common variations there are of 'I-O Psychology'), strip the white space, and finally lemmatize the words to unify similar words into their meaningful cores. Finally, we remove empty entries, as some posts were purely made of conventional stopwords and I-O Psychology terms. I elected not to change numbers into words, because when I did so the numbers associated with the past year, 2022, dominated the first topic identified by my LDA later.
 ```{r preprocess}
 week12_tbl_pre_preprocess <- week12_tbl %>% 
   mutate(across("title", str_replace_all, "-|/", " ")) #This is done because otherwise words connected by a hyphen or slash end up as one token
@@ -120,17 +120,16 @@ stopCluster(local_cluster)
 registerDoSEQ()
 ```
 
-Based on the LDA tuning graphs, I examined the beta matrices with 3, 4, or 5 topics and tried to make sense of them (the code for viewing the top 10 betas for each topic used in this process is included, but commented out). 3 topics seemed to yield the most interpretable topics, with 4 topics already starting to have difficult-to-conceptualize overlap between topics and 5 being even harder to parse. I therefore used 3 topics to get the beta and gamma matrices. I then made a tibble by combining the document IDs, the original post title of each document, the topic each document was assigned by the LDA, and the probability that the document belonged to that topic.
+Based on the LDA tuning graphs, I examined the beta matrices with 3, 4, or 5 topics and tried to make sense of them. 3 topics seemed to yield the most interpretable topics, with 4 topics already starting to have difficult-to-conceptualize overlap between topics and 5 being even harder to parse. I therefore used 3 topics to get the beta and gamma matrices. I then made a tibble by combining the document IDs, the original post title of each document, the topic each document was assigned by the LDA, and the probability that the document belonged to that topic.
 ```{r lda_results}
 lda_results <- LDA(io_dtm, 3)
 
 lda_betas <- tidy(lda_results, matrix="beta")
 
-# lda_betas %>%
-# group_by(topic) %>%
-# top_n(10, beta) %>%
-# arrange(topic, -beta) %>%
-# View
+lda_betas_top10 <- lda_betas %>%
+group_by(topic) %>%
+top_n(10, beta) %>%
+arrange(topic, -beta)
 
 
 lda_gammas <- tidy(lda_results, matrix="gamma")
