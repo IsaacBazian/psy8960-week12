@@ -160,8 +160,25 @@ topics_tbl <- topics_tbl_ids %>%
 ```
 
 Question 1:
+When I run the lda_results, the order of the topics seem to sometimes change. Still, these core groupings seem relatively consistent, even if their exact order as Topics 1, 2, and 3 change.
+
+Topic 1 appears to be capturing discussion posts, including those centering around reading articles. From my own experience, I know that R/IOPsychology hosts regular discussions of what people have been reading - looking at the tokens like 'bi weekly,' 'discussion,' and 'reading,' it looks like this topic is capturing those posts. I therefore will call Topic 1 'Discussion.'
+
+Topic 2 appears to be capturing posts where people are asking for career or education advice. It has tokens like 'advice,' 'work' and 'career', and 'best' and 'master.' It seems to me like these posts are asking for advice about work and career moves, what the best masters programs are, and things of that nature. I therefore will call Topic 2 'Advice.'
+
+Topic 3 appears to have a bit of overlap with Topic 2, insofar as people are still talking about career-type things, with topics like 'work', 'experience', 'job', and 'career.' They are also still asking questions or searching, with tokens like 'question' and 'looking.' There are also still some shades of schooling with the 'phd' token. I still interpret this as partially about advice, but also about working in IO more generally. I therefore will call Topic 3 'Talking about Work.'
+
 
 Question 2:
+The kind of validity we're assessing here is content validity - that is, do the tokens we've identified and made interpretations with actually reflect the full scope of the topics we're attempting to capture.
+
+The most probable posts for Topic 1 'Discussion' partially match my expectations. A lot of the most likely results are someone posting a specific study to prompt discussion, or people asking how where they can find good measurment tools or theoretical frameworks. The prevalence of articles is what I expected, but I didn't anticipate from the top tokens that many posts would be requesting models or measures. The least likely posts seem to often be asking for advice, either for work or education, which lines up with the fact that I thought those topics were more in like with Topics 2 and 3.
+
+The most probable posts for Topic 2 'Advice' partially match my expectations. There are a decent number of posts asking for advice, but most of them seem to focus on working and/or how to implement ideas in practive, with only a few asking for education advice. More posts than I expected seem to focus around specific research articles, which I thought would fit more with Topic 1 (though in retrospect this makes sense, as 'research' was also a top token in Topic 2). The least likely posts seem to reflect what I expected would be more likely, that is, education - some least likely posts are asking about specific masters or certification programs, and a few even ask about career path, which I again thought would be more likely. These results suggest I may have misunderstood this topic originally.
+
+The most probably posts for Topic 3 'Talking about work' seem to match my expectations pretty nicely. I see posts asking about how to implement certain measures and scales, whether people are getting paid enough and what hours they work, how to make movements between different areas in the field, and things like that. The least likely topic partially match my expectations - I see some posts asking about the kinds of people that do and don't go into IO, which is not proximal to work, like I had envisioned; and some posts asking about textbooks and educational resources, which I again thought wouldn't be here. However, there was one least likely post asking about career paths, which I would have thought would land squarely in this topic, along with the other most likely posts that seemed to reflect that topic. Overall though, this topic was mostly in line with what I expected.
+
+
 
 
 This code makes the final tibble by adding the upvote counts of each post, then running an ANOVA to determine if these topics differed substantially from each other in terms of how many upvotes posts belonging to each topic received. Results seem to change each time I run the lda_results, with setting the seed appearing not to stop it; generally speaking, a p-value above .05 is obtained, indicating that there is no significant difference between the topics in terms of how many upvotes they receive. However, since the result is sometimes significant, I have also included a post-hoc test, Tukey's HSD, to show exactly which topics significantly differ from each other in number of upvotes received when the ANOVA is significant.
